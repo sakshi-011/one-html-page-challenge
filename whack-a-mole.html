@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>One HTML Page Challenge</title>
+    <style>
+      :root {
+        --color-grey-one: #b2beb5;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: inherit;
+      }
+
+      html {
+        box-sizing: border-box;
+        overscroll-behavior-y: none;
+      }
+
+      body {
+        font-family: "Lucida Bright", Georgia, serif;
+        font-weight: 300;
+        color: black;
+        line-height: 1.5;
+        background-color: cornflowerblue;
+      }
+
+      .game--container {
+        width: 80vw;
+        height: 700px;
+        max-height: 85vh;
+        margin: 30px auto;
+        padding-top: 1px;
+        background-color: whitesmoke;
+        border-radius: 2%;
+      }
+
+      .rules {
+        float: left;
+        width: 35%;
+        padding: 2px;
+        padding-left: 3px;
+        font-size: 14px;
+      }
+
+      .game--arena {
+        width: 60%;
+        height: 70%;
+        margin-top: 100px;
+        margin-left: 30vw;
+        border-style: solid;
+        border-color: var(--color-grey-one);
+        border-width: 1px;
+        display: grid;
+        grid-template-columns: repeat(3, 33.33%);
+        grid-template-rows: repeat(3, 33.33%);
+        grid-gap: 0.2rem;
+        text-align: center;
+        align-items: center;
+        font-size: 30px;
+        color: var(--color-grey-one);
+      }
+
+      .emoji {
+        font-size: 4.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game--container">
+      <div class="rules">
+        <h3>Rules :</h3>
+        <br /><br />
+        1. Whack the mole DUH.. <br /><br />
+        2. I mean press number key correspoding to appearance of enemy, which
+        are - 👽, 💀 and 🐙. <br /><br />
+        3. Make sure to get nutrition along the way - 🍔, 🍎, 🍲 before you run
+        out of energy. One energy point depletes for every 10 alien kills.
+        <br /><br />
+        4. And if you kill the baby i.e 👶, then its game over for you, you
+        psychopath!! <br /><br />
+        GOOD LUCK :)
+      </div>
+      <div class="game--arena">
+        <!-- 👽💀👶🍔🍲🍅🍎🐙 -->
+        <div class="tiles emoji">👽</div>
+        <div class="tiles">2</div>
+        <div class="tiles">3</div>
+        <div class="tiles">4</div>
+        <div class="tiles">5</div>
+        <div class="tiles">6</div>
+        <div class="tiles">7</div>
+        <div class="tiles">8</div>
+        <div class="tiles">9</div>
+      </div>
+    </div>
+    <script>
+      const gameCharacters = [
+        "👽",
+        "💀",
+        "👶",
+        "🐙",
+        "👽",
+        "🍔",
+        "🐙",
+        "🍔",
+        "👽",
+        "🍎",
+        "💀",
+        "👽",
+        "👶",
+        "🍲",
+        "👽",
+        "🍲",
+        "🍎",
+        "👽",
+        "🐙",
+        "💀",
+        "🍎",
+        "👽",
+      ];
+
+      const gameArena = document.querySelector(".game--arena");
+      const tiles = document.querySelectorAll(".tiles");
+
+      const randomNumberGenerator = function () {
+        return Math.trunc(Math.random() * 22 + 1);
+      };
+    </script>
+  </body>
+</html>
