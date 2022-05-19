@@ -76,26 +76,26 @@
         <h3>Rules :</h3>
         <br /><br />
         1. Whack the mole DUH.. <br /><br />
-        2. I mean press number key correspoding to appearance of enemy, which
+        2. I mean press number key correspoding to appearance of enemies, which
         are - 👽, 💀 and 🐙. <br /><br />
         3. Make sure to get nutrition along the way - 🍔, 🍎, 🍲 before you run
         out of energy. One energy point depletes for every 10 alien kills.
         <br /><br />
-        4. And if you kill the baby i.e 👶, then its game over for you, you
+        4. And if you kill the baby - 👶, then its game over for you, you
         psychopath!! <br /><br />
         GOOD LUCK :)
       </div>
       <div class="game--arena">
         <!-- 👽💀👶🍔🍲🍅🍎🐙 -->
-        <div class="tiles emoji">👽</div>
-        <div class="tiles">2</div>
-        <div class="tiles">3</div>
-        <div class="tiles">4</div>
-        <div class="tiles">5</div>
-        <div class="tiles">6</div>
         <div class="tiles">7</div>
         <div class="tiles">8</div>
         <div class="tiles">9</div>
+        <div class="tiles">4</div>
+        <div class="tiles">5</div>
+        <div class="tiles">6</div>
+        <div class="tiles">1</div>
+        <div class="tiles">2</div>
+        <div class="tiles">3</div>
       </div>
     </div>
     <script>
@@ -108,6 +108,7 @@
         "🍔",
         "🐙",
         "🍔",
+        "👶",
         "👽",
         "🍎",
         "💀",
@@ -115,21 +116,153 @@
         "👶",
         "🍲",
         "👽",
+        "👶",
         "🍲",
         "🍎",
         "👽",
         "🐙",
         "💀",
+        "👶",
         "🍎",
         "👽",
       ];
+
+      const scoreCard = [
+        1, 1, -1, 1, 1, 2, 1, 2, -1, 1, 2, 1, 1, -1, 2, 1, -1, 2, 2, 1, 1, 1,
+        -1, 2, 1,
+      ];
+      let tileIndex = [6, 7, 8, 3, 4, 5, 0, 1, 2];
 
       const gameArena = document.querySelector(".game--arena");
       const tiles = document.querySelectorAll(".tiles");
 
       const randomNumberGenerator = function () {
-        return Math.trunc(Math.random() * 22 + 1);
+        return Math.trunc(Math.random() * 25);
       };
+
+      const randomTileGenerator = function () {
+        return Math.trunc(Math.random() * 9);
+      };
+
+      const displayCharacter = function () {
+        if (activeCharacters.size === 9) return;
+        let tileNum = randomTileGenerator();
+        while (activeCharacters.has(tileNum)) {
+          tileNum = randomTileGenerator();
+        }
+        const indexOfCharacters = randomNumberGenerator();
+        tiles[tileIndex[tileNum]].textContent =
+          gameCharacters[indexOfCharacters];
+        tiles[tileIndex[tileNum]].classList.add("emoji");
+        activeCharacters.add(tileNum);
+      };
+
+      const removeCharacter = function (num) {
+        tiles[tileIndex[num]].textContent = num + 1;
+        tiles[tileIndex[num]].classList.remove("emoji");
+        activeCharacters.delete(num);
+      };
+
+      // Without using async await
+      /*
+      let counter1 = 0;
+        let startLevel1 = setInterval(function () {
+          displayCharacter();
+          counter1++;
+          if (counter1 === 10) {
+            clearInterval(startLevel1);
+            let counter2 = 0;
+            let startLevel2 = setInterval(function () {
+              displayCharacter();
+              counter2++;
+              if (counter2 === 15) {
+                clearInterval(startLevel2);
+                let counter3 = 0;
+                let startLevel3 = setInterval(function () {
+                  displayCharacter();
+                  counter3++;
+                  if (counter3 === 15) {
+                    clearInterval(startLevel3);
+                    let counter4 = 0;
+                    let startLevel4 = setInterval(function () {
+                      displayCharacter();
+                      counter4++;
+                      if (counter4 === 15) {
+                        clearInterval(startLevel4);
+                        let counter5 = 0;
+                        let startLevel5 = setInterval(function () {
+                          displayCharacter();
+                          counter5++;
+                          if (counter5 === 15) {
+                            clearInterval(startLevel5);
+                          }
+                        }, 300);
+                      }
+                    }, 500);
+                  }
+                }, 800);
+              }
+            }, 1000);
+          }
+        }, 1500);
+      */
+
+      async function play(level) {
+        return new Promise(function (resolve) {
+          let counter = 0;
+          let startLevel = setInterval(function () {
+            displayCharacter();
+            counter++;
+            if (counter === hitsPerLevel[level]) {
+              resolve();
+              clearInterval(startLevel);
+            }
+          }, timeIntervals[level]);
+        });
+      }
+
+      let status = "";
+      let level = 0;
+      let activeCharacters = new Set();
+      const timeIntervals = [1500, 1000, 750, 500, 300];
+      const hitsPerLevel = [10, 15, 20, 25, 30];
+
+      function init() {
+        status = "stop";
+        level = 0;
+        startGame();
+      }
+      init();
+
+      async function startGame() {
+        status = "playing";
+        await play(level++);
+        await play(level++);
+        await play(level++);
+        await play(level++);
+        await play(level++);
+        status = "stop";
+      }
+
+      const checkAnswer = function (num) {
+        if (activeCharacters.has(num - 1)) {
+          removeCharacter(num - 1);
+        }
+      };
+
+      window.addEventListener("keydown", function (e) {
+        if (
+          !(
+            (e.keyCode >= 49 && e.keyCode <= 57) ||
+            (e.keyCode >= 97 && e.keyCode <= 105)
+          )
+        )
+          return;
+        if (status !== "playing") return;
+        const num =
+          e.keyCode >= 49 && e.keyCode <= 57 ? e.keyCode - 48 : e.keyCode - 96;
+        checkAnswer(num);
+      });
     </script>
   </body>
 </html>
