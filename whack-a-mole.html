@@ -29,6 +29,21 @@
         background-color: cornflowerblue;
       }
 
+      .hidden {
+        visibility: hidden;
+        opacity: 0;
+      }
+
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.7);
+        z-index: 5;
+      }
+
       .game--container {
         width: 80vw;
         height: 700px;
@@ -47,10 +62,36 @@
         font-size: 14px;
       }
 
+      .stats {
+        width: 60%;
+        height: 15%;
+        margin-left: 30vw;
+        margin-top: 30px;
+        line-height: 2;
+        display: flex;
+      }
+
+      .stat--item {
+        flex: 2;
+        text-align: center;
+        padding: 3px;
+        padding-top: 10px;
+      }
+
+      .stat--item .label {
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .stat--item .value {
+        font-size: 16px;
+        font-weight: 400;
+      }
+
       .game--arena {
         width: 60%;
         height: 70%;
-        margin-top: 100px;
+        margin-top: 20px;
         margin-left: 30vw;
         border-style: solid;
         border-color: var(--color-grey-one);
@@ -79,11 +120,26 @@
         2. I mean press number key correspoding to appearance of enemies, which
         are - 👽, 💀 and 🐙. <br /><br />
         3. Make sure to get nutrition along the way - 🍔, 🍎, 🍲 before you run
-        out of energy. One energy point depletes for every 10 alien kills.
+        out of energy. One energy point depletes for every 3 alien kills.
         <br /><br />
         4. And if you kill the baby - 👶, then its game over for you, you
         psychopath!! <br /><br />
         GOOD LUCK :)
+      </div>
+      <div class="more--options hidden"></div>
+      <div class="stats">
+        <div class="stat--item">
+          <div class="label" data-index="0">Score</div>
+          <div class="value" data-index="0">0</div>
+        </div>
+        <div class="stat--item">
+          <div class="label" data-index="1">Max Score</div>
+          <div class="value" data-index="1">0</div>
+        </div>
+        <div class="stat--item">
+          <div class="label" data-index="2">Energy</div>
+          <div class="value" data-index="2">10</div>
+        </div>
       </div>
       <div class="game--arena">
         <!-- 👽💀👶🍔🍲🍅🍎🐙 -->
@@ -98,6 +154,7 @@
         <div class="tiles">3</div>
       </div>
     </div>
+    <div class="overlay hidden"></div>
     <script>
       const gameCharacters = [
         "👽",
@@ -107,18 +164,18 @@
         "👽",
         "🍔",
         "🐙",
-        "🍔",
+        "👽",
         "👶",
         "👽",
         "🍎",
         "💀",
         "👽",
-        "👶",
+        "💀",
         "🍲",
         "👽",
         "👶",
         "🍲",
-        "🍎",
+        "👽",
         "👽",
         "🐙",
         "💀",
@@ -128,13 +185,19 @@
       ];
 
       const scoreCard = [
-        1, 1, -1, 1, 1, 2, 1, 2, -1, 1, 2, 1, 1, -1, 2, 1, -1, 2, 2, 1, 1, 1,
-        -1, 2, 1,
+        1, 1, -1, 1, 1, 2, 1, 1, -1, 1, 2, 1, 1, 1, 2, 1, -1, 2, 1, 1, 1, 1, -1,
+        2, 1,
       ];
+      const babyEmoji = [2, 8, 16, 22];
       let tileIndex = [6, 7, 8, 3, 4, 5, 0, 1, 2];
+      let gameState = new Map();
+      let score = 0,
+        energy = 10,
+        maxScore = 0;
 
       const gameArena = document.querySelector(".game--arena");
       const tiles = document.querySelectorAll(".tiles");
+      const statsValues = document.querySelectorAll(".value");
 
       const randomNumberGenerator = function () {
         return Math.trunc(Math.random() * 25);
@@ -145,19 +208,41 @@
       };
 
       const displayCharacter = function () {
-        if (activeCharacters.size === 9) return;
+        if (activeCharacters.size === 9 || status !== "playing") return;
         let tileNum = randomTileGenerator();
         while (activeCharacters.has(tileNum)) {
           tileNum = randomTileGenerator();
         }
         const indexOfCharacters = randomNumberGenerator();
+        gameState.set(tileNum, indexOfCharacters);
+        if (babyEmoji.includes(indexOfCharacters))
+          setTimeout(() => removeCharacter(tileNum), 1500);
         tiles[tileIndex[tileNum]].textContent =
           gameCharacters[indexOfCharacters];
         tiles[tileIndex[tileNum]].classList.add("emoji");
         activeCharacters.add(tileNum);
       };
 
+      const updateScore = function (num) {
+        const value = scoreCard[gameState.get(num)];
+        if (value === 1) {
+          score++;
+          statsValues[0].textContent = score;
+          if (score % 3 === 0) {
+            energy--;
+            statsValues[2].textContent = energy;
+          }
+        } else if (value === 2) {
+          energy++;
+          statsValues[2].textContent = energy;
+        } else if (value === -1) {
+          status = "stop";
+        }
+        gameState.delete(num);
+      };
+
       const removeCharacter = function (num) {
+        if (status !== "playing") return;
         tiles[tileIndex[num]].textContent = num + 1;
         tiles[tileIndex[num]].classList.remove("emoji");
         activeCharacters.delete(num);
@@ -212,6 +297,11 @@
           let counter = 0;
           let startLevel = setInterval(function () {
             displayCharacter();
+            if (activeCharacters.size > 8) {
+              status = "stop";
+              resolve();
+              clearInterval(startLevel);
+            }
             counter++;
             if (counter === hitsPerLevel[level]) {
               resolve();
@@ -221,32 +311,43 @@
         });
       }
 
+      function gameOver() {
+        status = "stop";
+        if (score > maxScore) {
+          maxScore = score;
+          statsValues[1].textContent = maxScore;
+        }
+      }
+
       let status = "";
       let level = 0;
       let activeCharacters = new Set();
       const timeIntervals = [1500, 1000, 750, 500, 300];
       const hitsPerLevel = [10, 15, 20, 25, 30];
+      const totalLevels = 5;
 
       function init() {
         status = "stop";
         level = 0;
+        gameState = new Map();
+        score = 0;
+        energy = 10;
         startGame();
       }
       init();
 
       async function startGame() {
         status = "playing";
-        await play(level++);
-        await play(level++);
-        await play(level++);
-        await play(level++);
-        await play(level++);
-        status = "stop";
+        while (status === "playing" && level < totalLevels) {
+          await play(level++);
+        }
+        gameOver();
       }
 
       const checkAnswer = function (num) {
         if (activeCharacters.has(num - 1)) {
           removeCharacter(num - 1);
+          updateScore(num - 1);
         }
       };
 
