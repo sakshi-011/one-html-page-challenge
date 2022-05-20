@@ -601,6 +601,12 @@
         });
       }
 
+      const wait = async function (seconds) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, seconds * 1000);
+        });
+      };
+
       const updateMaxScore = function () {
         if (score > maxScore) {
           maxScore = score;
@@ -621,7 +627,9 @@
         while (status === "playing" && level < totalLevels) {
           await play(level++);
         }
-        if (activeCharacters.length < 3)
+        await wait(1);
+        console.log(activeCharacters);
+        if (activeCharacters.size < 3)
           gameMsg.textContent = "Congrats!! You have cleared all levels :)";
         gameOver();
       }
